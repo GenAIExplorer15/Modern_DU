@@ -11,16 +11,6 @@ pipeline {
 
     stages {
 
-        stage('Preparing') {
-            steps {
-                echo "Jenkins Home ${JENKINS_HOME}"
-                echo "Jenkins URL ${JENKINS_URL}"
-                echo "Jenkins JOB Number ${BUILD_NUMBER}"
-                echo "Jenkins JOB Name ${JOB_NAME}"
-                echo "GitHub Branch ${BRANCH_NAME}"
-            }
-        }
-
         stage('Checkout') {
             steps {
                 checkout scm
@@ -29,32 +19,27 @@ pipeline {
 
         stage('Build Package') {
             steps {
+
                 echo "Packaging UiPath Project..."
 
                 UiPathPack(
-                    versionType: 'AutoVersion',
-                    outputPath: 'output',
-                    projectPath: '.'
+                    version: '1.0.${BUILD_NUMBER}',
+                    projectJsonPath: 'project.json',
+                    outputPath: 'output'
                 )
-            }
-        }
-
-        stage('Test') {
-            steps {
-                echo "Running workflow tests..."
             }
         }
 
         stage('Deploy to UAT') {
             steps {
 
-                echo "Deploying package to UAT folder..."
+                echo "Deploying to UAT..."
 
                 UiPathDeploy(
                     orchestratorAddress: "${UIPATH_ORCH_URL}",
                     orchestratorTenant: "${UIPATH_TENANT}",
                     folderName: "${UIPATH_FOLDER_DEV}",
-                    packagesPath: "output/*.nupkg",
+                    packagePath: "output/*.nupkg",
 
                     credentials: Token(
                         accountName: "",
@@ -68,13 +53,13 @@ pipeline {
         stage('Deploy to Production') {
             steps {
 
-                echo "Deploying package to Production folder..."
+                echo "Deploying to Production..."
 
                 UiPathDeploy(
                     orchestratorAddress: "${UIPATH_ORCH_URL}",
                     orchestratorTenant: "${UIPATH_TENANT}",
                     folderName: "${UIPATH_FOLDER_PROD}",
-                    packagesPath: "output/*.nupkg",
+                    packagePath: "output/*.nupkg",
 
                     credentials: Token(
                         accountName: "",
@@ -87,14 +72,6 @@ pipeline {
     }
 
     post {
-        success {
-            echo "Pipeline completed successfully"
-        }
-
-        failure {
-            echo "Pipeline failed"
-        }
-
         always {
             cleanWs()
         }
