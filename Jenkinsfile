@@ -23,7 +23,7 @@ pipeline {
                 echo "Packaging UiPath Project..."
 
                 UiPathPack(
-                    version: '1.0.${BUILD_NUMBER}',
+                    version: AutoVersion(),
                     projectJsonPath: 'project.json',
                     outputPath: 'output'
                 )
@@ -40,6 +40,11 @@ pipeline {
                     orchestratorTenant: "${UIPATH_TENANT}",
                     folderName: "${UIPATH_FOLDER_DEV}",
                     packagePath: "output/*.nupkg",
+
+                    entryPointPaths: ["Main.xaml"],
+                    environments: [],
+                    traceLevel: "Information",
+                    createProcess: true,
 
                     credentials: Token(
                         accountName: "",
@@ -60,6 +65,11 @@ pipeline {
                     orchestratorTenant: "${UIPATH_TENANT}",
                     folderName: "${UIPATH_FOLDER_PROD}",
                     packagePath: "output/*.nupkg",
+
+                    entryPointPaths: ["Main.xaml"],
+                    environments: [],
+                    traceLevel: "Information",
+                    createProcess: true,
 
                     credentials: Token(
                         accountName: "",
