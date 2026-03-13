@@ -19,20 +19,19 @@ pipeline {
 
         stage('Build Package') {
             steps {
-
                 echo "Packaging UiPath Project..."
 
                 UiPathPack(
                     version: AutoVersion(),
-                    projectJsonPath: 'project.json',
-                    outputPath: 'output'
+                    projectJsonPath: "project.json",
+                    outputPath: "output",
+                    traceLevel: "Information"
                 )
             }
         }
 
         stage('Deploy to UAT') {
             steps {
-
                 echo "Deploying to UAT..."
 
                 UiPathDeploy(
@@ -57,7 +56,6 @@ pipeline {
 
         stage('Deploy to Production') {
             steps {
-
                 echo "Deploying to Production..."
 
                 UiPathDeploy(
@@ -82,6 +80,14 @@ pipeline {
     }
 
     post {
+        success {
+            echo "Pipeline completed successfully"
+        }
+
+        failure {
+            echo "Pipeline failed"
+        }
+
         always {
             cleanWs()
         }
